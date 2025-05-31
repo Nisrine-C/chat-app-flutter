@@ -35,6 +35,13 @@ class ReceiveMessage extends ConversationEvent {
   List<Object> get props => [conversationId, content];
 }
 
+class NewConversation extends ConversationEvent {
+  final String contactName;
+  const NewConversation(this.contactName);
+  @override
+  List<Object> get props => [contactName];
+}
+
 abstract class ConversationState extends Equatable {
   const ConversationState();
   @override
@@ -67,11 +74,12 @@ class ConversationError extends ConversationState {
 class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   final MockChatRepository repository;
 
-  ConversationBloc(this.repository) : super( ConversationLoading()) {
+  ConversationBloc(this.repository) : super(ConversationLoading()) {
     on<LoadConversations>(_onLoadConversations);
     on<LoadMessages>(_onLoadMessages);
     on<SendMessage>(_onSendMessage);
     on<ReceiveMessage>(_onReceiveMessage);
+    on<NewConversation>(_onNewConversation); // Add handler for new event
   }
 
   Future<void> _onLoadConversations(
@@ -128,6 +136,25 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
       if (currentState is MessageListLoaded) {
         final updatedMessages = List<Message>.from(currentState.messages)..add(newMessage);
         emit(MessageListLoaded(updatedMessages));
+      }
+    } catch (e) {
+      emit(ConversationError(e.toString()));
+    }
+  }
+
+  Future<void> _onNewConversation(
+      NewConversation event,
+      Emitter<ConversationState> emit,
+      ) async {
+    try {
+      final currentState = state;
+      final newConversation = await repository.addConversation(event.contactName);
+      if (currentState is ConversationListLoaded) {
+        final updatedConversations = List<Conversation>.from(currentState.conversations)
+          ..add(newConversation);
+        emit(ConversationListLoaded(updatedConversations));
+      } else {
+        emit(ConversationListLoaded([newConversation]));
       }
     } catch (e) {
       emit(ConversationError(e.toString()));

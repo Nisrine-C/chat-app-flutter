@@ -87,4 +87,16 @@ class MockChatRepository {
     mockMessages.add(newMessage);
     return newMessage;
   }
+
+  Future<Conversation> addConversation(String contactName) async {
+    await Future.delayed(const Duration(seconds: 1));
+    final newConversation = Conversation(
+      id: '${mockConversations.length + 1}',
+      contactName: contactName,
+      lastMessage: 'New conversation started',
+      timestamp: DateTime.now(),
+    );
+    mockConversations.add(newConversation);
+    return newConversation;
+  }
 }

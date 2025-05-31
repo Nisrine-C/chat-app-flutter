@@ -6,6 +6,47 @@ import 'detail_screen.dart';
 class ConversationListScreen extends StatelessWidget {
   const ConversationListScreen({super.key});
 
+  void _showAddConversationDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('New Conversation'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'Enter contact name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  // Dispatch the NewConversation event to the ConversationBloc
+                  context.read<ConversationBloc>().add(NewConversation(controller.text));
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Contact name cannot be empty')),
+                  );
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,9 +56,7 @@ class ConversationListScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('New conversation feature coming soon!')),
-              );
+              _showAddConversationDialog(context);
             },
           ),
         ],
