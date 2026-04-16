@@ -1,4 +1,4 @@
-# ChatApp_Flutter
+# chat-app-flutter
 
 A modern chat application built with Flutter, utilizing a clean architecture and robust state management. This project demonstrates the implementation of a real-time messaging interface with a focus on scalability and performance.
 
